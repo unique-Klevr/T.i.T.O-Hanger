@@ -1,0 +1,9 @@
+
+{
+  "name": "HangrMap",
+  "description": "Professional door hanger tracking system for lawn care marketing campaigns. Features GPS tracking, territory management, and real-time ROI analytics.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
