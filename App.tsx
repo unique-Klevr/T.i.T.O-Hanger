@@ -8,6 +8,7 @@ import AdminDashboard from './components/AdminDashboard';
 import Navigation from './components/Navigation';
 import BillingPage from './components/BillingPage';
 import LandingPage from './components/LandingPage';
+import CampaignsPage from './components/CampaignsPage';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>({
@@ -115,6 +116,10 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.location.href = '/';
+  };
+
+  const handleSelectCampaign = (id: string) => {
+    setAppState(prev => ({ ...prev, currentCampaignId: id }));
   };
 
   const handleAddCampaign = async (name: string, neighborhood: string) => {
@@ -230,13 +235,24 @@ const App: React.FC = () => {
             {!isPremiumActive ? (
               <BillingPage company={appState.company!} />
             ) : (
-              <AdminDashboard
-                state={appState}
-                onAddCampaign={handleAddCampaign}
-                onUpdateCampaign={(c) => {
-                  // Implement Supabase update
-                }}
-              />
+              <>
+                {view === 'dashboard' && (
+                  <AdminDashboard
+                    state={appState}
+                    onAddCampaign={handleAddCampaign}
+                    onUpdateCampaign={(c) => {
+                      // Implement Supabase update
+                    }}
+                  />
+                )}
+                {view === 'campaigns' && (
+                  <CampaignsPage
+                    state={appState}
+                    onAddCampaign={handleAddCampaign}
+                    onSelectCampaign={handleSelectCampaign}
+                  />
+                )}
+              </>
             )}
           </div>
         )}
