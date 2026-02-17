@@ -15,44 +15,31 @@ const PLANS = [
         name: 'Solo Plan',
         price: '$19',
         features: ['1 User', 'Unlimited Drops', 'Basic Analytics'],
-        color: 'bg-emerald-500'
+        color: 'bg-emerald-500',
+        url: 'https://buy.stripe.com/14A9AUf3k4yP2KG0DXgfu0o'
     },
     {
         type: 'crew' as PlanType,
         name: 'Crew Plan',
         price: '$49',
         features: ['Up to 5 Users', 'Phone Support', 'Advanced Analytics', 'Crew Tracking'],
-        color: 'bg-sky-500'
+        color: 'bg-sky-500',
+        url: 'https://buy.stripe.com/4gM14o7ASc1hgBw3Q9gfu0q'
     },
     {
         type: 'agency' as PlanType,
         name: 'Agency Plan',
         price: '$99',
         features: ['Unlimited Users', 'Dedicated Account Manager', 'Custom Reports', 'API Access'],
-        color: 'bg-indigo-600'
+        color: 'bg-indigo-600',
+        url: 'https://buy.stripe.com/8x228sf3k3uL5WS0DXgfu0p'
     }
 ];
 
 const BillingPage: React.FC<BillingPageProps> = ({ company }) => {
-    const handleCheckout = async (plan: PlanType) => {
-        try {
-            // In a real app, you would call your serverless function here
-            const response = await fetch('/api/create-checkout-session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ companyId: company.id, plan }),
-            });
-            const session = await response.json();
-
-            const stripe = await stripePromise;
-            if (stripe && session.id) {
-                await (stripe as any).redirectToCheckout({ sessionId: session.id });
-            }
-        } catch (err) {
-            console.error('Stripe error:', err);
-            // For demo purposes, we'll just log
-            alert('In a production environment, this would redirect to Stripe Checkout.');
-        }
+    const handleCheckout = (planUrl: string) => {
+        // Redirect to direct Stripe payment link
+        window.location.href = `${planUrl}?client_reference_id=${company.id}`;
     };
 
     return (
@@ -93,7 +80,7 @@ const BillingPage: React.FC<BillingPageProps> = ({ company }) => {
                             </ul>
 
                             <button
-                                onClick={() => handleCheckout(plan.type)}
+                                onClick={() => handleCheckout(plan.url)}
                                 className={`w-full py-6 rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-xl transition-all active:scale-95 ${company.plan_type === plan.type
                                     ? 'bg-emerald-500 text-white shadow-emerald-200'
                                     : 'bg-slate-900 text-white shadow-slate-200'
