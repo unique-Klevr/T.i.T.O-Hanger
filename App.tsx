@@ -9,6 +9,7 @@ import Navigation from './components/Navigation';
 import BillingPage from './components/BillingPage';
 import LandingPage from './components/LandingPage';
 import CampaignsPage from './components/CampaignsPage';
+import CampaignDetails from './components/CampaignDetails';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>({
@@ -22,13 +23,13 @@ const App: React.FC = () => {
 
   const [view, setView] = useState<'dashboard' | 'campaigns' | 'profile'>('dashboard');
   const [loading, setLoading] = useState(true);
+  const [selectedCampaignForManagement, setSelectedCampaignForManagement] = useState<Campaign | null>(null);
 
   // Simple routing logic
   const path = window.location.pathname;
   const isAuthView = path === '/login' || path === '/signup';
 
   const fetchAppData = useCallback(async (userId: string) => {
-    // ... logic remains same ...
     try {
       const { data: userData, error: userError } = await supabase
         .from('users')
@@ -122,6 +123,23 @@ const App: React.FC = () => {
     setAppState(prev => ({ ...prev, currentCampaignId: id }));
   };
 
+  const handleDeleteCampaign = async (id: string) => {
+    try {
+      await supabase.from('drops').delete().eq('campaign_id', id);
+      await supabase.from('campaigns').delete().eq('id', id);
+
+      setAppState(prev => ({
+        ...prev,
+        campaigns: prev.campaigns.filter(c => c.id !== id),
+        currentCampaignId: prev.currentCampaignId === id ? null : prev.currentCampaignId,
+        drops: prev.drops.filter(d => d.campaignId !== id)
+      }));
+      setSelectedCampaignForManagement(null);
+    } catch (err) {
+      console.error('Error deleting campaign:', err);
+    }
+  };
+
   const handleAddCampaign = async (name: string, neighborhood: string) => {
     if (!appState.user || !appState.company) return;
 
@@ -209,7 +227,6 @@ const App: React.FC = () => {
     );
   }
 
-  // PUBLIC RENDERING
   if (!appState.user) {
     if (isAuthView) {
       return <Auth onSuccess={() => { window.location.href = '/'; }} />;
@@ -217,7 +234,6 @@ const App: React.FC = () => {
     return <LandingPage />;
   }
 
-  // PROTECTED RENDERING
   const isPremiumActive = appState.company?.subscription_status === 'active' || appState.company?.subscription_status === 'trialing';
 
   return (
@@ -236,21 +252,33 @@ const App: React.FC = () => {
               <BillingPage company={appState.company!} />
             ) : (
               <>
-                {view === 'dashboard' && (
-                  <AdminDashboard
-                    state={appState}
-                    onAddCampaign={handleAddCampaign}
-                    onUpdateCampaign={(c) => {
-                      // Implement Supabase update
-                    }}
+                {selectedCampaignForManagement ? (
+                  <CampaignDetails
+                    campaign={selectedCampaignForManagement}
+                    drops={appState.drops}
+                    onBack={() => setSelectedCampaignForManagement(null)}
+                    onDelete={handleDeleteCampaign}
                   />
-                )}
-                {view === 'campaigns' && (
-                  <CampaignsPage
-                    state={appState}
-                    onAddCampaign={handleAddCampaign}
-                    onSelectCampaign={handleSelectCampaign}
-                  />
+                ) : (
+                  <>
+                    {view === 'dashboard' && (
+                      <AdminDashboard
+                        state={appState}
+                        onAddCampaign={handleAddCampaign}
+                        onUpdateCampaign={(c) => {
+                          // Implement Supabase update
+                        }}
+                      />
+                    )}
+                    {view === 'campaigns' && (
+                      <CampaignsPage
+                        state={appState}
+                        onAddCampaign={handleAddCampaign}
+                        onSelectCampaign={handleSelectCampaign}
+                        onManageCampaign={(c) => setSelectedCampaignForManagement(c)}
+                      />
+                    )}
+                  </>
                 )}
               </>
             )}
@@ -261,7 +289,10 @@ const App: React.FC = () => {
       <Navigation
         user={appState.user}
         activeView={view}
-        onViewChange={setView}
+        onViewChange={(v) => {
+          setSelectedCampaignForManagement(null);
+          setView(v);
+        }}
         onLogout={handleLogout}
       />
     </div>

@@ -6,9 +6,10 @@ interface CampaignsPageProps {
     state: AppState;
     onAddCampaign: (name: string, neighborhood: string) => void;
     onSelectCampaign: (id: string) => void;
+    onManageCampaign: (campaign: Campaign) => void;
 }
 
-const CampaignsPage: React.FC<CampaignsPageProps> = ({ state, onAddCampaign, onSelectCampaign }) => {
+const CampaignsPage: React.FC<CampaignsPageProps> = ({ state, onAddCampaign, onSelectCampaign, onManageCampaign }) => {
     const handleNewCampaign = () => {
         const name = prompt("Enter Campaign Name (e.g., Spring 2024 Flyers):");
         if (!name) return;
@@ -94,7 +95,10 @@ const CampaignsPage: React.FC<CampaignsPageProps> = ({ state, onAddCampaign, onS
                                 >
                                     {state.currentCampaignId === camp.id ? 'Targeting This' : 'Set as Current'}
                                 </button>
-                                <button className="p-4 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-colors text-slate-400 hover:text-emerald-500">
+                                <button
+                                    onClick={() => onManageCampaign(camp)}
+                                    className="p-4 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-colors text-slate-400 hover:text-emerald-500"
+                                >
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                     </svg>
