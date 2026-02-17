@@ -7,6 +7,7 @@ import CrewDashboard from './components/CrewDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import Navigation from './components/Navigation';
 import BillingPage from './components/BillingPage';
+import LandingPage from './components/LandingPage';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>({
@@ -21,9 +22,13 @@ const App: React.FC = () => {
   const [view, setView] = useState<'dashboard' | 'campaigns' | 'profile'>('dashboard');
   const [loading, setLoading] = useState(true);
 
+  // Simple routing logic
+  const path = window.location.pathname;
+  const isAuthView = path === '/login' || path === '/signup';
+
   const fetchAppData = useCallback(async (userId: string) => {
+    // ... logic remains same ...
     try {
-      // 1. Fetch User Profile
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('*, companies(*)')
@@ -41,13 +46,11 @@ const App: React.FC = () => {
         role: userData.role as UserRole
       };
 
-      // 2. Fetch Campaigns
       const { data: campaignsData } = await supabase
         .from('campaigns')
         .select('*')
         .eq('company_id', company.id);
 
-      // 3. Fetch Drops
       const { data: dropsData } = await supabase
         .from('drops')
         .select('*')
@@ -111,6 +114,7 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    window.location.href = '/';
   };
 
   const handleAddDrop = async (drop: Omit<Drop, 'id' | 'timestamp' | 'userId' | 'campaignId' | 'company_id'>) => {
@@ -161,10 +165,15 @@ const App: React.FC = () => {
     );
   }
 
+  // PUBLIC RENDERING
   if (!appState.user) {
-    return <Auth onSuccess={() => { }} />;
+    if (isAuthView) {
+      return <Auth onSuccess={() => { window.location.href = '/'; }} />;
+    }
+    return <LandingPage />;
   }
 
+  // PROTECTED RENDERING
   const isPremiumActive = appState.company?.subscription_status === 'active' || appState.company?.subscription_status === 'trialing';
 
   return (
