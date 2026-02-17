@@ -117,6 +117,45 @@ const App: React.FC = () => {
     window.location.href = '/';
   };
 
+  const handleAddCampaign = async (name: string, neighborhood: string) => {
+    if (!appState.user || !appState.company) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .insert([{
+          company_id: appState.company.id,
+          name,
+          target_neighborhood: neighborhood,
+          qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://hangrmap.app/scan/${Math.random().toString(36).substring(7)}`,
+          stats: { totalDrops: 0, scans: 0 }
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newCampaign: Campaign = {
+        id: data.id,
+        company_id: data.company_id,
+        name: data.name,
+        startDate: data.created_at,
+        qrCodeUrl: data.qr_code_url,
+        targetNeighborhood: data.target_neighborhood,
+        assignedCrewIds: [],
+        stats: data.stats
+      };
+
+      setAppState(prev => ({
+        ...prev,
+        campaigns: [newCampaign, ...prev.campaigns],
+        currentCampaignId: prev.currentCampaignId || newCampaign.id
+      }));
+    } catch (err) {
+      console.error('Error adding campaign:', err);
+    }
+  };
+
   const handleAddDrop = async (drop: Omit<Drop, 'id' | 'timestamp' | 'userId' | 'campaignId' | 'company_id'>) => {
     if (!appState.user || !appState.company) return;
 
@@ -193,6 +232,7 @@ const App: React.FC = () => {
             ) : (
               <AdminDashboard
                 state={appState}
+                onAddCampaign={handleAddCampaign}
                 onUpdateCampaign={(c) => {
                   // Implement Supabase update
                 }}

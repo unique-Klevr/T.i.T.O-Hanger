@@ -8,6 +8,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 interface AdminDashboardProps {
   state: AppState;
   onUpdateCampaign: (campaign: Campaign) => void;
+  onAddCampaign: (name: string, neighborhood: string) => void;
 }
 
 const mapContainerStyle = {
@@ -30,10 +31,18 @@ const mapOptions = {
   fullscreenControl: true,
 };
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ state }) => {
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ state, onAddCampaign }) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
   });
+
+  const handleNewCampaign = () => {
+    const name = prompt("Enter Campaign Name (e.g., Spring 2024 Flyers):");
+    if (!name) return;
+    const neighborhood = prompt("Enter Target Neighborhood (e.g., North Heights):");
+    if (!neighborhood) return;
+    onAddCampaign(name, neighborhood);
+  };
 
   const stats = useMemo(() => {
     const today = new Date();
@@ -199,7 +208,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ state }) => {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-6 px-2">
           <h3 className="text-xl font-black text-slate-800 tracking-tight">Active Campaigns</h3>
-          <button className="bg-emerald-500 text-white font-black text-xs uppercase tracking-widest px-6 py-3 rounded-2xl shadow-lg shadow-emerald-200 active:scale-95 transition-transform">+ New Campaign</button>
+          <button
+            onClick={handleNewCampaign}
+            className="bg-emerald-500 text-white font-black text-xs uppercase tracking-widest px-6 py-3 rounded-2xl shadow-lg shadow-emerald-200 active:scale-95 transition-transform"
+          >
+            + New Campaign
+          </button>
         </div>
         <div className="grid sm:grid-cols-2 gap-4">
           {state.campaigns.map(camp => (
