@@ -142,20 +142,20 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign, drops, onBa
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-4">
-                        <h3 className="text-xl font-black text-slate-800 tracking-tight px-2">Drop History</h3>
-                        <div className="space-y-4">
+                    <div className="flex flex-col gap-4 h-[600px]">
+                        <h3 className="text-xl font-black text-slate-800 tracking-tight px-2 shrink-0">Drop History</h3>
+                        <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar flex-1">
                             {campaignDrops.length === 0 ? (
                                 <div className="py-12 bg-white rounded-[2rem] border border-slate-100 flex flex-col items-center justify-center text-center">
                                     <p className="text-slate-300 font-black uppercase text-xs tracking-widest">No Drops Yet</p>
                                 </div>
                             ) : (
                                 campaignDrops.map(drop => (
-                                    <div key={drop.id} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center gap-4">
+                                    <div key={drop.id} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center gap-4 hover:border-emerald-100 transition-colors shrink-0">
                                         <div className={`w-3 h-3 rounded-full shrink-0`} style={{ backgroundColor: (STATUS_HEX as any)[drop.status] }}></div>
                                         <div className="flex-1">
                                             <p className="text-sm font-black text-slate-800 truncate mb-1">{drop.address || 'Unknown Address'}</p>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
                                                 {new Date(drop.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </p>
                                         </div>
