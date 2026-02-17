@@ -56,7 +56,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ state, onAddCampaign })
       totalDrops: state.drops.length,
       monthDrops: state.drops.filter(d => new Date(d.timestamp) >= firstOfMonth).length,
       conversion: state.drops.length > 0 ? (state.leads.length / state.drops.length * 100).toFixed(1) : '0',
-      activeCrew: MOCK_CREW.length,
+      activeCrew: state.team.length,
       todayDrops: state.drops.filter(d => new Date(d.timestamp) >= today).length,
       byStatus: {
         dropped: state.drops.filter(d => d.status === 'dropped').length,

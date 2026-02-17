@@ -69,4 +69,5 @@ export interface AppState {
   drops: Drop[];
   campaigns: Campaign[];
   leads: Lead[];
+  team: User[];
 }

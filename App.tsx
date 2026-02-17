@@ -18,7 +18,8 @@ const App: React.FC = () => {
     currentCampaignId: null,
     drops: [],
     campaigns: [],
-    leads: []
+    leads: [],
+    team: []
   });
 
   const [view, setView] = useState<'dashboard' | 'campaigns' | 'profile'>('dashboard');
@@ -58,6 +59,11 @@ const App: React.FC = () => {
         .select('*')
         .eq('company_id', company.id);
 
+      const { data: teamData } = await supabase
+        .from('users')
+        .select('*')
+        .eq('company_id', company.id);
+
       setAppState({
         user,
         company,
@@ -84,7 +90,14 @@ const App: React.FC = () => {
           assignedCrewIds: [],
           stats: c.stats
         })),
-        leads: []
+        leads: [],
+        team: (teamData || []).map(t => ({
+          id: t.id,
+          company_id: t.company_id,
+          name: t.name,
+          email: t.email,
+          role: t.role as UserRole
+        }))
       });
     } catch (err) {
       console.error('Error fetching data:', err);
