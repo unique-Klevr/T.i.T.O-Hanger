@@ -107,6 +107,26 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // Force scroll unlock on mount and view changes
+    const unlockScroll = () => {
+      document.body.style.overflow = 'auto';
+      document.body.style.overflowY = 'auto';
+      document.body.classList.remove('overflow-hidden');
+      document.body.classList.remove('antigravity-scroll-lock');
+
+      document.documentElement.style.overflow = 'auto';
+      document.documentElement.style.overflowY = 'auto';
+      document.documentElement.classList.remove('overflow-hidden');
+    };
+
+    unlockScroll();
+    // Re-check after a small delay to catch any late overrides
+    const timer = setTimeout(unlockScroll, 500);
+
+    return () => clearTimeout(timer);
+  }, [view, appState.user]);
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         fetchAppData(session.user.id);
@@ -250,8 +270,8 @@ const App: React.FC = () => {
   const isPremiumActive = appState.company?.subscription_status === 'active' || appState.company?.subscription_status === 'trialing';
 
   return (
-    <div className="flex flex-col h-screen w-full bg-slate-50">
-      <main className="flex-1 overflow-hidden relative">
+    <div className="flex flex-col min-h-screen w-full bg-slate-50">
+      <main className="flex-1 relative">
         {appState.user.role === 'crew' ? (
           <CrewDashboard
             drops={appState.drops}
