@@ -850,7 +850,7 @@ const LandingPage: React.FC = () => {
                 </div>
             </section>
 
-            <section className="educational">
+            <section id="how-it-works" className="educational">
                 <div className="container grid-2">
                     <div className="edu-image">
                         <div className="comparison glass">
